@@ -1,3 +1,4 @@
+package com.razan.androidcomposetask
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,42 +8,36 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-private val Typography.h5: TextStyle
-    get() {
-        TODO("Not yet implemented")
-    }
-
+import com.razan.androidcomposetask.ui.theme.AndroidComposeTaskTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            FeatherAndroidTasksTheme {
-                // A surface container using the 'background' color from the theme
+
+            AndroidComposeTaskTheme {
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -53,101 +48,114 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 @Composable
 fun TrueFalseGame() {
+    var isCorrect by remember { mutableStateOf(false) }
+    var isSelectedAnsr by remember { mutableStateOf(false) }
+    var isButtonSelect by remember { mutableStateOf(false) }
+
+
     Column(
         modifier = Modifier
+            .clip(CircleShape)
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .width(200.dp)
+            .padding(40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+
+
     ) {
-        // Step 2: Add Text for the question
+        // Step 1
         Text(
-            text = "Is the sky blue?",
-            style = MaterialTheme.typography.h5
+            text = "ADD QUESTION!",
+            modifier = Modifier.padding(bottom = 20.dp)
+
         )
 
-        // Step 3: Use Row layout for true and false buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // True button
-            TrueFalseButton(text = "True", isTrue = true)
 
-            // Spacer for button spacing
-            Spacer(modifier = Modifier.width(16.dp))
 
-            // False button
-            TrueFalseButton(text = "False", isTrue = false)
+        // Step 5
+        if (isCorrect) {
+            AnswerFeedback("Correct!", MaterialTheme.colorScheme.secondary)
+        } else {
+            AnswerFeedback("Wrong!", MaterialTheme.colorScheme.error)
         }
+        if (isButtonSelect){
+            Button(
+                onClick = { isButtonSelect = false },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.End)
+                    .width(200.dp)
+                    .padding(10.dp),
+            ) {
+                Text(text = "next Question")
+            }
+        }else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
 
-        // Step 4: Add Next Question button
-        Button(
-            onClick = { /* Handle next question click */ },
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 16.dp)
-        ) {
-            Text(text = "Next Question")
+            ) {
+                // Step 3
+                TrueFalseButton("True") {
+                    isSelectedAnsr = true
+                    isButtonSelect = true
+                }
+                TrueFalseButton("False") { isSelectedAnsr = false }
+            }
         }
-
-        // Step 5: Create custom composable for Correct Answer and Wrong Answer
-        CorrectWrongAnswer(isCorrect = true) // Change to false for Wrong Answer
     }
+
 }
 
+
+
+
 @Composable
-fun TrueFalseButton(text: String, isTrue: Boolean) {
+fun TrueFalseButton(text: String, onSelected: () -> Unit) {
     Button(
-        onClick = {  },
+        onClick = {
+            onSelected()
+        },
         modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth()
+            .width(120.dp)
+            .height(40.dp)
     ) {
         Text(text = text)
     }
 }
 
-private fun Any.fillMaxWidth(): Modifier {
-    TODO("Not yet implemented")
-}
-
-private fun Modifier.Companion.weight(fl: Float): Any {
-    TODO("Not yet implemented")
-}
 
 @Composable
-fun CorrectWrongAnswer(isCorrect: Boolean) {
-    // Bonus: Use Box to create Correct and Wrong Answer circles
+fun AnswerFeedback(message: String, backgroundColor: androidx.compose.ui.graphics.Color) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(100.dp)
             .clip(CircleShape)
-            .background(
-                color = if (isCorrect) Color.Green else Color.Red
-            ),
+            .clip(MaterialTheme.shapes.large)
+            .background(backgroundColor)
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Bonus: Use icons for Correct and Wrong Answer
-        Icon(
-            imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Clear,
-            contentDescription = if (isCorrect) "Correct Answer" else "Wrong Answer",
-            tint = Color.White
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+
+                text = message,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimary
+
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewTrueFalseGame() {
-    FeatherAndroidTasksTheme {
-        TrueFalseGame()
-    }
-}
-
-@Composable
-fun FeatherAndroidTasksTheme(content: @Composable () -> Unit) {
-    TODO("Not yet implemented")
+fun TrueFalseGamePreview() {
+    TrueFalseGame()
 }
